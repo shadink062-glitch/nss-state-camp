@@ -12,33 +12,65 @@ export default async function handler(req, res) {
 
     console.log("Request body:", req.body);
 
-    const response = await fetch(APPS_SCRIPT_URL, {
+    // Send request to Apps Script WITHOUT automatically following
+    // Google's redirect.
+    const appsScriptResponse = await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(req.body),
-      redirect: "follow",
+      redirect: "manual",
     });
 
-    const responseText = await response.text();
+    console.log("Apps Script status:", appsScriptResponse.status);
+    console.log(
+      "Apps Script location:",
+      appsScriptResponse.headers.get("location")
+    );
 
-    console.log("Apps Script response:", responseText);
+    // Apps Script normally responds with a redirect.
+    const redirectUrl = appsScriptResponse.headers.get("location");
 
-    let data;
+    if (redirectUrl) {
+      const finalResponse = await fetch(redirectUrl, {
+        method: "GET",
+      });
+
+      const text = await finalResponse.text();
+
+      console.log("Final Apps Script status:", finalResponse.status);
+      console.log("Final Apps Script response:", text);
+
+      try {
+        const data = JSON.parse(text);
+
+        return res.status(200).json(data);
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Apps Script returned non-JSON data",
+          response: text.substring(0, 1000),
+        });
+      }
+    }
+
+    // If there was no redirect, try reading the response directly.
+    const text = await appsScriptResponse.text();
+
+    console.log("Direct Apps Script response:", text);
 
     try {
-      data = JSON.parse(responseText);
+      const data = JSON.parse(text);
+
+      return res.status(200).json(data);
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "Apps Script did not return JSON",
-        response: responseText,
+        message: "Apps Script returned non-JSON data",
+        response: text.substring(0, 1000),
       });
     }
-
-    return res.status(200).json(data);
-
   } catch (error) {
     console.error("Proxy error:", error);
 
