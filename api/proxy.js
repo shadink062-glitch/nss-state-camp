@@ -1,83 +1,126 @@
 const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzQWKr4YDlVfziweV_RQq0tTJCb4lg9x1eVWDKiYO1tmbuNVA9J2Shn1WhQevlF1ls8/exec";
+  "https://script.google.com/macros/s/AKfycbzQ5cUH46d8HEiF0LEhTJhM7EaWCO_GgeG7sSA-FdNOplbc3fGLL4hj7M8Iwg6-5SG_/exec";
+
 
 export default async function handler(req, res) {
-  try {
-    if (req.method !== "POST") {
-      return res.status(405).json({
-        success: false,
-        message: "Method not allowed",
-      });
-    }
 
-    console.log("Request body:", req.body);
+  // Only allow POST
+  if (req.method !== "POST") {
 
-    // Send request to Apps Script WITHOUT automatically following
-    // Google's redirect.
-    const appsScriptResponse = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(req.body),
-      redirect: "manual",
+    return res.status(405).json({
+      success: false,
+      message: "Method not allowed",
     });
 
-    console.log("Apps Script status:", appsScriptResponse.status);
+  }
+
+
+  try {
+
     console.log(
-      "Apps Script location:",
-      appsScriptResponse.headers.get("location")
+      "Proxy request:",
+      req.body
     );
 
-    // Apps Script normally responds with a redirect.
-    const redirectUrl = appsScriptResponse.headers.get("location");
 
-    if (redirectUrl) {
-      const finalResponse = await fetch(redirectUrl, {
-        method: "GET",
-      });
+    // Send request to Apps Script
+    const response = await fetch(
+      APPS_SCRIPT_URL,
+      {
+        method: "POST",
 
-      const text = await finalResponse.text();
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
 
-      console.log("Final Apps Script status:", finalResponse.status);
-      console.log("Final Apps Script response:", text);
+        body: JSON.stringify(
+          req.body
+        ),
 
-      try {
-        const data = JSON.parse(text);
-
-        return res.status(200).json(data);
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message: "Apps Script returned non-JSON data",
-          response: text.substring(0, 1000),
-        });
+        redirect: "follow",
       }
-    }
+    );
 
-    // If there was no redirect, try reading the response directly.
-    const text = await appsScriptResponse.text();
 
-    console.log("Direct Apps Script response:", text);
+    console.log(
+      "Apps Script status:",
+      response.status
+    );
+
+
+    const text =
+      await response.text();
+
+
+    console.log(
+      "Apps Script response:",
+      text
+    );
+
+
+    // Try parsing JSON
+    let data;
+
 
     try {
-      const data = JSON.parse(text);
 
-      return res.status(200).json(data);
-    } catch (error) {
-      return res.status(500).json({
+      data = JSON.parse(text);
+
+    } catch (parseError) {
+
+      console.error(
+        "JSON parse error:",
+        parseError
+      );
+
+
+      return res.status(502).json({
+
         success: false,
-        message: "Apps Script returned non-JSON data",
-        response: text.substring(0, 1000),
+
+        message:
+          "Apps Script returned non-JSON response",
+
+        appsScriptStatus:
+          response.status,
+
+        response:
+          text.substring(0, 1000),
+
       });
+
     }
+
+
+    // IMPORTANT:
+    // Always return JSON to React
+
+    return res.status(200).json(
+      data
+    );
+
+
   } catch (error) {
-    console.error("Proxy error:", error);
+
+    console.error(
+      "Proxy error:",
+      error
+    );
+
 
     return res.status(500).json({
+
       success: false,
-      message: "Proxy request failed",
-      error: error.message,
+
+      message:
+        "Proxy request failed",
+
+      error:
+        error.message,
+
     });
+
   }
+
 }

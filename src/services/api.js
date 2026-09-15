@@ -14,6 +14,9 @@ async function sendRequest(data) {
   return result;
 }
 
+// ===============================
+// STUDENT REGISTRATION
+// ===============================
 export const registerStudent = async (studentData) => {
   return sendRequest({
     action: "register",
@@ -21,6 +24,9 @@ export const registerStudent = async (studentData) => {
   });
 };
 
+// ===============================
+// GET STUDENT
+// ===============================
 export const getStudent = async (token) => {
   return sendRequest({
     action: "getStudent",
@@ -28,22 +34,56 @@ export const getStudent = async (token) => {
   });
 };
 
-export const markFood = async (token, volunteerId) => {
+// ===============================
+// GET CURRENT MEAL
+// ===============================
+export const getCurrentMeal = async () => {
+  return sendRequest({
+    action: "getCurrentMeal",
+  });
+};
+
+// ===============================
+// MARK FOOD
+// ===============================
+export const markFood = async (
+  token,
+  mealId,
+  volunteerId
+) => {
   return sendRequest({
     action: "markFood",
     token,
+    mealId,
     volunteerId,
   });
 };
 
-export const getStats = async () => {
+// ===============================
+// GET STATS
+// ===============================
+export const getStats = async (mealId) => {
   return sendRequest({
     action: "getStats",
+    mealId,
   });
 };
 
+// ===============================
+// GET STUDENTS
+// ===============================
 export const getStudents = async () => {
   return sendRequest({
     action: "getStudents",
+  });
+};
+
+// ===============================
+// SET CURRENT MEAL
+// ===============================
+export const setCurrentMeal = async (mealId) => {
+  return sendRequest({
+    action: "setCurrentMeal",
+    mealId,
   });
 };
