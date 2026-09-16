@@ -1,6 +1,8 @@
 const API_URL = "/api/proxy";
 
 async function sendRequest(data) {
+  console.log("API request:", data);
+
   const response = await fetch(API_URL, {
     method: "POST",
     headers: {
@@ -9,9 +11,37 @@ async function sendRequest(data) {
     body: JSON.stringify(data),
   });
 
-  const result = await response.json();
+  const text = await response.text();
 
-  return result;
+  console.log(
+    "API HTTP status:",
+    response.status
+  );
+
+  console.log(
+    "API raw response:",
+    text
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `API request failed (${response.status})`
+    );
+  }
+
+  if (!text) {
+    throw new Error(
+      "API returned an empty response"
+    );
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(
+      "API returned invalid JSON"
+    );
+  }
 }
 
 // ===============================
@@ -27,10 +57,11 @@ export const registerStudent = async (studentData) => {
 // ===============================
 // GET STUDENT
 // ===============================
-export const getStudent = async (token) => {
+export const getStudent = async (token, mealId) => {
   return sendRequest({
     action: "getStudent",
     token,
+    mealId,
   });
 };
 
