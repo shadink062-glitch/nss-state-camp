@@ -730,7 +730,7 @@ const styles = {
   pageDescription: {
     maxWidth: "560px",
     margin: "13px auto 0",
-    color: "#260fbf",
+    color: "#151517",
     fontSize: "14px",
     lineHeight: "1.7",
   },
@@ -771,6 +771,7 @@ const styles = {
     paddingBottom: "20px",
     marginBottom: "24px",
     borderBottom: "1px solid #edf0f4",
+    
   },
   sectionNumber: {
     width: "38px",
@@ -790,6 +791,7 @@ const styles = {
     fontSize: "18px",
     fontWeight: "750",
     letterSpacing: "-0.2px",
+     color: "#070708",
   },
   sectionDescription: {
     margin: "4px 0 0",
