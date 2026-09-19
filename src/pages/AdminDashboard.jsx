@@ -87,7 +87,7 @@ function AdminDashboard() {
       fontSize: "30px",
       fontWeight: "800",
       letterSpacing: "-0.5px",
-      color: "#113e80",
+      
     },
 
     subtitle: {
