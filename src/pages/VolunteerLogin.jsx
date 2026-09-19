@@ -1,23 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// =====================================================
-// VOLUNTEER CREDENTIALS
-// =====================================================
-// Add, remove, or rename entries here as needed — each
-// username becomes that volunteer's ID, which is what
-// shows up in the "Verified By" column in FoodRecords.
-// Change the passwords below before the camp.
-// =====================================================
-
-const VOLUNTEERS = [
-  { username: "volunteer1", password: "123456" },
-  { username: "volunteer2", password: "123456" },
-  { username: "volunteer3", password: "123456" },
-  { username: "volunteer4", password: "123456" },
-  { username: "volunteer5", password: "123456" },
-];
-
 function VolunteerLogin() {
   const navigate = useNavigate();
 
@@ -30,18 +13,10 @@ function VolunteerLogin() {
 
     setError("");
 
-    const cleanUsername = username.trim().toLowerCase();
-    const cleanPassword = password.trim();
-
-    const match = VOLUNTEERS.find(
-      (v) =>
-        v.username.toLowerCase() === cleanUsername &&
-        v.password === cleanPassword
-    );
-
-    if (match) {
+    // Temporary login for testing
+    if (username === "volunteer" && password === "123456") {
       localStorage.setItem("volunteerLoggedIn", "true");
-      localStorage.setItem("volunteerId", match.username);
+      localStorage.setItem("volunteerId", "volunteer");
 
       navigate("/volunteer");
     } else {
